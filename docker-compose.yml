@@ -1,0 +1,8 @@
+version: '2'
+services:
+  adminkamu:
+    image: iotitude/adminkamu-rest
+    ports:
+      - "8080:8080"
+      - "4848:4848"
+      - "8181:8181"

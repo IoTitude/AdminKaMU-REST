@@ -27,3 +27,7 @@ Once you've configured the server, open AdminKaMU-REST project in NetBeans, depl
 |Google Chrome|Version 51.0.2704.106 (64-bit)|
 |WizTools.org RESTClient|3.6|
 |Ubuntu Linux|14.04 LTS|
+
+## Problems with development
+
+For some reason further development of the service proved impossible. Trying to change the Kaa SDK for examlpe resulted in a completely broken REST API. The main error was `exception java.lang.NoClassDefFoundError: Could not initialize class iotitude.com.RestController` but it was not possible to solve it at this time.

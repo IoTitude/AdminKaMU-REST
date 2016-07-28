@@ -30,4 +30,6 @@ Once you've configured the server, open AdminKaMU-REST project in NetBeans, depl
 
 ## Problems with development
 
-For some reason further development of the service proved impossible. Trying to change the Kaa SDK for examlpe resulted in a completely broken REST API. The main error was `exception java.lang.NoClassDefFoundError: Could not initialize class iotitude.com.RestController` but it was not possible to solve it at this time.
+For some reason further development of the service proved very difficult. Trying to change the Kaa SDK resulted in a completely broken REST API. The main error was `exception java.lang.NoClassDefFoundError: Could not initialize class iotitude.com.RestController`. Most likely this was related to something being broken in the Kaa SDK that was required by AdminKaMU in order to control the KaMUs. Probably the service was unable to reach the Kaa server and that caused the exception during the initialization of the RestController.
+
+At some point it became possible to run AdminKaMU on a local machine. However it just didn't run in a container and doing so resulted to the same kind of errors. The final problems could not be solved in time before the end of the project.

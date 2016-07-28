@@ -61,6 +61,13 @@ public class RestController {
      * Creates a new instance of RestController
      */
     public RestController() {
+        try {
+            kaaClient.start();
+            bbc.updateAdminHash(session, kaaClient.getEndpointKeyHash());
+            attachUser();
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
     }
 
     /**
@@ -71,7 +78,8 @@ public class RestController {
     @Produces("text/html")
     public String getHtml() {
         //TODO return proper representation object
-        return "<html><body><img src=\"http://192.168.142.30:8080/adminkamu/images/8a8.jpg\" alt=\"DAT BOI\" style=\"width:304px;height:228px;\"></body></html>";
+        
+        return "<html><body><img src=\"../images/8a8.jpg\" alt=\"DAT BOI\" style=\"width:304px;height:228px;\"></body></html>";
     }
 
     
@@ -90,7 +98,6 @@ public class RestController {
     @Path("updateDevice")
     @Produces("text/html")
     public void updateDevice(@Context HttpServletRequest request, @Context HttpServletResponse response) {
-        
         String Version = request.getParameter("versionTag");
         String Date = request.getParameter("datetime");
         String Hash = request.getParameter("hash");
@@ -112,7 +119,6 @@ public class RestController {
     @Path("restartDevice")
     @Produces("text/html")
     public void restartDevice(@Context HttpServletRequest request, @Context HttpServletResponse response) {
-        
         String Date = request.getParameter("datetime");
         String Hash = request.getParameter("hash");
         
@@ -133,7 +139,6 @@ public class RestController {
     @Path("changeProfile")
     @Produces("text/html")
     public void profileChanger(@Context HttpServletRequest request, @Context HttpServletResponse response) {
-        
         //String Target = request.getParameter("target");
         
         String Profile = request.getParameter("profileId");
@@ -142,10 +147,6 @@ public class RestController {
         
         System.out.println("asd");
         //createKaaClient();
-        kaaClient.start();
-        System.out.println(kaaClient.getEndpointKeyHash());
-        attachUser();
-        
         sendProfileToSingleTarget(Hash);
         
         try {
@@ -161,7 +162,7 @@ public class RestController {
     }
     
     
-    public static void sendProfileToSingleTarget(String target){
+    public static void sendProfileToSingleTarget(final String target){
         
         List<String> FQNs = new LinkedList<>();
         FQNs.add(ChangeProfile.class.getName());
@@ -266,7 +267,7 @@ public class RestController {
    }
    
    public static Map<String, String> getDevices(String session) {
-        JSONArray data = bbc.getDeviceInfo(session);
+        JSONArray data = bbc.getDeviceInfo(session, "Master");
         Map<String, String> devices = new HashMap();
         for (int i = 0; i < data.length(); i++) {
             JSONObject object = data.getJSONObject(i);

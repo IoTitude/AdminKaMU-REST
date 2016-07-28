@@ -25,6 +25,8 @@ public class BaasBoxController {
     public BaasBoxController() {
     }
     
+    private final String baseUrl = "http://baasbox.io";
+    
     public String logIn() {
         try {
             
@@ -32,7 +34,7 @@ public class BaasBoxController {
             String urlParameters = "username=admin&password=admin&appcode=1234567890";
             byte[] postData = urlParameters.getBytes();
             // URL to connect to
-            String urlStr = "http://192.168.142.37:9000/login";
+            String urlStr = baseUrl + "/login";
             // Creating HttpURLConnection
             HttpURLConnection conn = (HttpURLConnection) new URL(urlStr).openConnection();
             // Request method. SetDoOutput must be declared to be able to POST/PUT output (parameters)
@@ -68,7 +70,7 @@ public class BaasBoxController {
     public JSONObject getDocuments(String session, String collection) {
         try {
             // Get documents from specific collection
-            String urlStr = "http://192.168.142.37:9000/document/" + collection;
+            String urlStr = baseUrl + "/document/" + collection;
             HttpURLConnection conn = (HttpURLConnection) new URL(urlStr).openConnection();
             conn.setRequestMethod("GET");
             conn.setDoOutput(true);
@@ -106,9 +108,9 @@ public class BaasBoxController {
         }
     }
     
-    public JSONArray getDeviceInfo(String session) {
+    public JSONArray getDeviceInfo(String session, String collection) {
         // Get documents from Device collection
-        JSONObject json = getDocuments(session, "Master");
+        JSONObject json = getDocuments(session, collection);
         JSONArray data = json.getJSONArray("data");
         return data;
     }
@@ -129,7 +131,7 @@ public class BaasBoxController {
     
     public boolean updateDeviceHash(String session, String mac, String hash) {
         try {
-            JSONArray deviceData = getDeviceInfo(session);
+            JSONArray deviceData = getDeviceInfo(session, "Master");
             JSONObject obj = new JSONObject();
             String id = "";
             // Iterate through JSON array. Compare each mac address for the one we are looking for. Here "perkele" will be changed to a parameter
@@ -155,7 +157,7 @@ public class BaasBoxController {
             String json = newObj.toString();
             byte[] postData = json.getBytes();
             //System.out.println(id);
-            String urlStr = "http://192.168.142.37:9000/document/Master/" + id;
+            String urlStr = baseUrl + "/document/Master/" + id;
             HttpURLConnection conn = (HttpURLConnection) new URL(urlStr).openConnection();
             conn.setRequestMethod("PUT");
             conn.setDoOutput(true);
@@ -181,6 +183,62 @@ public class BaasBoxController {
         } catch (IOException ex) {
             System.out.println(ex.getMessage());
             return false;
+        }
+    }
+    
+    public void updateAdminHash(String session, String hash) {
+        try {
+            JSONArray deviceData = getDeviceInfo(session, "Admin");
+            JSONObject obj = deviceData.getJSONObject(0);
+            String id = obj.getString("id");
+            // Iterate through JSON array. Compare each mac address for the one we are looking for.
+            /*
+            for (int i = 0; i < deviceData.length(); i++) {
+                obj = deviceData.getJSONObject(i);
+                if (obj.getString("hash").equals(hash)) {
+                    
+                    // Break the loop when the correct document is found and save the id from that document
+                    id = obj.getString("id");
+                    break;
+                }
+            }
+            */
+            // New JSON object. This will be used to rewrite data on the document
+            JSONObject newObj = new JSONObject();
+            // Loop through the original object. Change stuff when key is hash
+            /*
+            for (String key : obj.keySet()) {
+                newObj.put(key, obj.get(key));
+                if (key.equals("hash")) {
+                    newObj.put(key, hash);
+                }
+            }
+            */
+            newObj.put("hash", hash);
+            // Convert new JSON object to string and then to bytes
+            String json = newObj.toString();
+            byte[] postData = json.getBytes();
+            //System.out.println(id);
+            String urlStr = baseUrl + "/document/Admin/" + id;
+            HttpURLConnection conn = (HttpURLConnection) new URL(urlStr).openConnection();
+            conn.setRequestMethod("PUT");
+            conn.setDoOutput(true);
+            conn.setRequestProperty("X-BB-SESSION", session);
+            conn.setRequestProperty("Content-type", "application/json");
+            DataOutputStream wr = new DataOutputStream( conn.getOutputStream());
+            wr.write(postData);
+            
+            BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+            StringBuilder stringBuilder = new StringBuilder();
+            String line = null;
+            while ((line = reader.readLine()) != null)
+            {
+                stringBuilder.append(line + "\n");
+            }
+            System.out.println(stringBuilder.toString());
+
+        } catch (IOException ex) {
+            System.out.println(ex.getMessage());
         }
     }
 }
